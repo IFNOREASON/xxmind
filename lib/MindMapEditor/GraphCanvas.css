@@ -12,7 +12,7 @@
 
 .graph-canvas.mindmap .x6-node {
   cursor: pointer;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.15s ease, filter 0.15s ease;
 }
 
 .graph-canvas.mindmap .x6-node:hover {
@@ -21,6 +21,16 @@
 
 .graph-canvas.mindmap .x6-node.selected {
   box-shadow: 0 0 0 2px #1890ff;
+}
+
+.graph-canvas.mindmap .x6-node.drop-target {
+  box-shadow: 0 0 0 3px #52c41a, 0 0 16px rgba(82, 196, 26, 0.5);
+  transform: scale(1.05);
+}
+
+.graph-canvas.mindmap .x6-node.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
 }
 
 .graph-canvas.mindmap .x6-edge {

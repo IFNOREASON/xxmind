@@ -1,9 +1,10 @@
-import { useCallback, useState, useRef } from 'react'
+import { useCallback, useState, useRef, useEffect } from 'react'
 import { Graph, Node, Edge } from '@antv/x6'
 import { MindMapEditorProps, ToolType, MindMapNodeData } from './types'
 import GraphCanvas from './GraphCanvas'
 import Toolbar from './Toolbar'
 import PropertyPanel from './PropertyPanel'
+import OutlinePanel from './OutlinePanel'
 import { MindMapShapeManager } from './MindMapShapeManager'
 import './MindMapEditor.css'
 
@@ -12,6 +13,8 @@ export default function MindMapEditor(props: MindMapEditorProps) {
   const [currentTool, setCurrentTool] = useState<ToolType>('select')
   const [selectedNodes, setSelectedNodes] = useState<Node[]>([])
   const [selectedEdges, setSelectedEdges] = useState<Edge[]>([])
+  const [outlineCollapsed, setOutlineCollapsed] = useState(false)
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const shapeManagerRef = useRef<MindMapShapeManager | null>(null)
 
   const handleGraphReady = useCallback(
@@ -28,6 +31,11 @@ export default function MindMapEditor(props: MindMapEditorProps) {
   const handleSelectionChange = useCallback((nodes: Node[], edges: Edge[]) => {
     setSelectedNodes(nodes)
     setSelectedEdges(edges)
+    if (nodes.length === 1) {
+      setSelectedNodeId(nodes[0].id)
+    } else if (nodes.length === 0) {
+      setSelectedNodeId(null)
+    }
   }, [])
 
   const handleUpdateNode = useCallback((node: Node, updates: { fillColor?: string; fontColor?: string; label?: string }) => {
@@ -160,6 +168,10 @@ export default function MindMapEditor(props: MindMapEditorProps) {
     }
   }, [graph])
 
+  const handleSelectNodeFromOutline = useCallback((nodeId: string) => {
+    setSelectedNodeId(nodeId)
+  }, [])
+
   return (
     <div className="mindmap-editor">
       <Toolbar
@@ -185,6 +197,14 @@ export default function MindMapEditor(props: MindMapEditorProps) {
             onSelectionChange={handleSelectionChange}
           />
         </div>
+        <OutlinePanel
+          graph={graph}
+          shapeManager={shapeManagerRef.current}
+          selectedNodeId={selectedNodeId}
+          onSelectNode={handleSelectNodeFromOutline}
+          collapsed={outlineCollapsed}
+          onToggleCollapsed={() => setOutlineCollapsed((prev) => !prev)}
+        />
         <PropertyPanel
           selectedNodes={selectedNodes}
           selectedEdges={selectedEdges}

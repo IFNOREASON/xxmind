@@ -1,0 +1,139 @@
+.swimlane-editor {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #f5f7fa;
+}
+
+.swimlane-editor-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.swimlane-editor-canvas {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.swimlane-editor-canvas::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(#e8e8e8 1px, transparent 1px);
+  background-size: 20px 20px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.x6-graph-scroller {
+  background-color: #fafafa;
+}
+
+.x6-graph-grid {
+  background-image: radial-gradient(#d9d9d9 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.x6-node {
+  cursor: move;
+  transition: box-shadow 0.2s ease;
+}
+
+.x6-node:hover {
+  filter: brightness(1.05);
+}
+
+.x6-node-selected {
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+}
+
+.x6-node-body {
+  transition: all 0.15s ease;
+}
+
+.x6-edge {
+  cursor: pointer;
+}
+
+.x6-edge:hover .x6-edge-line {
+  stroke-width: 3px !important;
+}
+
+.x6-edge-vertex {
+  background-color: #1890ff;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  cursor: move;
+}
+
+.x6-edge-vertex:hover {
+  background-color: #40a9ff;
+  transform: scale(1.2);
+}
+
+.x6-magnet {
+  width: 8px;
+  height: 8px;
+  background-color: #1890ff;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  cursor: crosshair;
+  transition: all 0.2s ease;
+}
+
+.x6-magnet:hover {
+  background-color: #40a9ff;
+  transform: scale(1.5);
+}
+
+.x6-port-body {
+  width: 10px;
+  height: 10px;
+  background-color: #1890ff;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  cursor: crosshair;
+}
+
+.x6-port-body:hover {
+  background-color: #40a9ff;
+  transform: scale(1.2);
+}
+
+.x6-node:hover .x6-port-body {
+  display: block;
+}
+
+.x6-transform-resize-handle {
+  background-color: #1890ff;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.x6-transform-resize-handle:hover {
+  background-color: #40a9ff;
+  transform: scale(1.2);
+}
+
+.x6-snapline {
+  background-color: #fa541c;
+}
+
+.x6-snapline-text {
+  background-color: #fa541c;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 2px;
+}

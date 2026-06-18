@@ -1,0 +1,84 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.tool-selector-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.selector-header {
+  padding: 60px 20px 40px;
+  text-align: center;
+  color: #fff;
+}
+
+.selector-header h1 {
+  font-size: 42px;
+  margin: 0 0 16px;
+  font-weight: 700;
+}
+
+.selector-header p {
+  font-size: 18px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.selector-content {
+  flex: 1;
+  padding: 0 20px 60px;
+}
+
+.tool-cards {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.tool-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  display: block;
+}
+
+.tool-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.tool-card-icon {
+  font-size: 56px;
+  margin-bottom: 20px;
+}
+
+.tool-card-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: #333;
+}
+
+.tool-card-desc {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}

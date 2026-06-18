@@ -1,0 +1,71 @@
+.mindmap-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 28px;
+  background: #e8e8e8;
+  margin: 0 8px;
+}
+
+.toolbar-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 56px;
+  gap: 2px;
+}
+
+.toolbar-btn:hover {
+  background: #f0f0f0;
+}
+
+.toolbar-btn.active {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.toolbar-btn.delete:hover {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.toolbar-btn.reset:hover {
+  background: #fff7e6;
+  color: #fa8c16;
+}
+
+.toolbar-btn .icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.toolbar-btn .label {
+  font-size: 11px;
+  color: #666;
+}
+
+.toolbar-btn.active .label {
+  color: #1890ff;
+}

@@ -1,0 +1,156 @@
+.graph-canvas {
+  width: 100%;
+  height: 100%;
+  background-color: #fafafa;
+  position: relative;
+  overflow: hidden;
+}
+
+.graph-canvas .x6-graph {
+  background-image: radial-gradient(#d9d9d9 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.x6-node {
+  cursor: move;
+  transition: filter 0.15s ease;
+}
+
+.x6-node:hover {
+  filter: brightness(1.05);
+}
+
+.x6-node-selected {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+.x6-port-body {
+  width: 6px !important;
+  height: 6px !important;
+  background-color: #ffffff !important;
+  stroke: #5F95FF !important;
+  stroke-width: 2px !important;
+  cursor: crosshair !important;
+  transition: all 0.15s ease;
+  pointer-events: auto;
+}
+
+.x6-port-body:hover {
+  width: 10px !important;
+  height: 10px !important;
+  background-color: #5F95FF !important;
+  stroke: #1890ff !important;
+  cursor: crosshair !important;
+}
+
+.x6-edge {
+  cursor: pointer;
+}
+
+.x6-edge:hover .x6-edge-line {
+  stroke-width: 3px !important;
+  stroke: #5F95FF !important;
+}
+
+.x6-edge-selected .x6-edge-line {
+  stroke: #1890ff !important;
+  stroke-width: 3px !important;
+}
+
+.x6-snapline {
+  background-color: #fa541c;
+}
+
+.x6-snapline-text {
+  background-color: #fa541c;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.x6-transform-box {
+  border: 1px dashed #1890ff;
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
+.x6-transform-handler {
+  background-color: #1890ff;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.x6-transform-handler:hover {
+  background-color: #40a9ff;
+  transform: scale(1.2);
+}
+
+.x6-selection-box {
+  border: 1px solid #1890ff;
+  background-color: rgba(24, 144, 255, 0.08);
+}
+
+.x6-graph-scroller {
+  background-color: #fafafa;
+}
+
+.x6-graph-grid {
+  background-image: radial-gradient(#d9d9d9 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.x6-edge-vertex {
+  width: 8px;
+  height: 8px;
+  background-color: #1890ff;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  cursor: move;
+  transition: all 0.15s ease;
+}
+
+.x6-edge-vertex:hover {
+  width: 12px;
+  height: 12px;
+  background-color: #40a9ff;
+}
+
+.x6-node-anchor {
+  width: 6px;
+  height: 6px;
+  background-color: #ffffff;
+  stroke: #5F95FF;
+  stroke-width: 2px;
+  cursor: crosshair;
+  transition: all 0.15s ease;
+}
+
+.x6-node-anchor:hover {
+  width: 10px;
+  height: 10px;
+  background-color: #5F95FF;
+  stroke: #1890ff;
+  cursor: crosshair;
+}
+
+.x6-magnet {
+  width: 6px;
+  height: 6px;
+  background-color: #ffffff;
+  stroke: #5F95FF;
+  stroke-width: 2px;
+  cursor: crosshair;
+  transition: all 0.15s ease;
+}
+
+.x6-magnet:hover {
+  width: 10px;
+  height: 10px;
+  background-color: #5F95FF;
+  stroke: #1890ff;
+  cursor: crosshair;
+}

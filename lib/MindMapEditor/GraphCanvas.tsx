@@ -33,6 +33,7 @@ export default function GraphCanvas({
     highlightedNodeId: string | null
     originalStrokeColor: string | null
     originalStrokeWidth: number | null
+    originalPointerEvents: string | null
   }>({
     dragging: false,
     draggedNodeId: null,
@@ -40,6 +41,7 @@ export default function GraphCanvas({
     highlightedNodeId: null,
     originalStrokeColor: null,
     originalStrokeWidth: null,
+    originalPointerEvents: null,
   })
 
   createChildNodeRef.current = useCallback((parentNode: Node) => {
@@ -388,6 +390,13 @@ export default function GraphCanvas({
       dragState.draggedNodeId = node.id
       const bbox = node.getBBox()
       dragState.originalPosition = { x: bbox.x, y: bbox.y }
+
+      const view = graph.findView(node)
+      if (view && view.container) {
+        const container = view.container as HTMLElement
+        dragState.originalPointerEvents = container.style.pointerEvents || 'auto'
+        container.style.pointerEvents = 'none'
+      }
     })
 
     graph.on('node:mouseup', ({ node, e }) => {
@@ -396,6 +405,15 @@ export default function GraphCanvas({
 
       const draggedNodeId = dragState.draggedNodeId
       const targetNodeId = node.id
+
+      const draggedNode = graph.getCellById(draggedNodeId) as Node
+      if (draggedNode) {
+        const view = graph.findView(draggedNode)
+        if (view && view.container) {
+          const container = view.container as HTMLElement
+          container.style.pointerEvents = dragState.originalPointerEvents || 'auto'
+        }
+      }
 
       if (dragState.highlightedNodeId) {
         const highlightedNode = graph.getCellById(dragState.highlightedNodeId) as Node
@@ -418,15 +436,22 @@ export default function GraphCanvas({
       dragState.highlightedNodeId = null
       dragState.originalStrokeColor = null
       dragState.originalStrokeWidth = null
+      dragState.originalPointerEvents = null
     })
 
     graph.on('blank:mouseup', ({ e }) => {
       const dragState = dragStateRef.current
       if (!dragState.dragging || !dragState.draggedNodeId) return
 
-      if (dragState.originalPosition) {
-        const draggedNode = graph.getCellById(dragState.draggedNodeId) as Node
-        if (draggedNode) {
+      const draggedNode = graph.getCellById(dragState.draggedNodeId) as Node
+      if (draggedNode) {
+        const view = graph.findView(draggedNode)
+        if (view && view.container) {
+          const container = view.container as HTMLElement
+          container.style.pointerEvents = dragState.originalPointerEvents || 'auto'
+        }
+
+        if (dragState.originalPosition) {
           draggedNode.position(dragState.originalPosition.x, dragState.originalPosition.y)
           shapeManager.updateConnectedEdges(draggedNode)
         }
@@ -446,6 +471,7 @@ export default function GraphCanvas({
       dragState.highlightedNodeId = null
       dragState.originalStrokeColor = null
       dragState.originalStrokeWidth = null
+      dragState.originalPointerEvents = null
     })
 
     graph.on('node:mouseenter', ({ node }) => {

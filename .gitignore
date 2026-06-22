@@ -65,3 +65,6 @@ coverage
 *.tmp
 *.temp
 *.bak
+
+.trae/
+output/

@@ -372,6 +372,136 @@ export class MindMapShapeManager {
     })
   }
 
+  private isDescendant(potentialAncestorId: string, potentialDescendantId: string): boolean {
+    const ancestorNode = this.graph.getCellById(potentialAncestorId) as Node
+    if (!ancestorNode) return false
+
+    const data = ancestorNode.getData() as MindMapNodeData
+    if (!data?.children || data.children.length === 0) return false
+
+    if (data.children.includes(potentialDescendantId)) return true
+
+    return data.children.some((childId) => this.isDescendant(childId, potentialDescendantId))
+  }
+
+  private updateDescendantsDirection(node: Node, direction: 'left' | 'right') {
+    const data = node.getData() as MindMapNodeData
+    if (!data?.children || data.children.length === 0) return
+
+    data.children.forEach((childId) => {
+      const childNode = this.graph.getCellById(childId) as Node
+      if (childNode) {
+        const childData = childNode.getData() as MindMapNodeData
+        childNode.setData({ ...childData, direction })
+        this.updateDescendantsDirection(childNode, direction)
+      }
+    })
+  }
+
+  moveNodeToParent(nodeId: string, targetParentId: string): boolean {
+    const node = this.graph.getCellById(nodeId) as Node
+    const targetParent = this.graph.getCellById(targetParentId) as Node
+
+    if (!node || !targetParent) return false
+
+    const nodeData = node.getData() as MindMapNodeData
+    const targetParentData = targetParent.getData() as MindMapNodeData
+
+    if (!nodeData || !targetParentData) return false
+    if (nodeData.level === 'root') return false
+    if (nodeId === targetParentId) return false
+    if (this.isDescendant(nodeId, targetParentId)) return false
+
+    if (nodeData.parentId) {
+      const oldParent = this.graph.getCellById(nodeData.parentId) as Node
+      if (oldParent) {
+        const oldParentData = oldParent.getData() as MindMapNodeData
+        if (oldParentData?.children) {
+          oldParent.setData({
+            ...oldParentData,
+            children: oldParentData.children.filter((id) => id !== nodeId),
+          })
+        }
+      }
+    }
+
+    const edges = this.graph.getEdges()
+    edges.forEach((edge) => {
+      const sourceId = edge.getSourceCellId()
+      const targetId = edge.getTargetCellId()
+      if (
+        (sourceId === nodeData.parentId && targetId === nodeId) ||
+        (sourceId === nodeId && targetId === nodeData.parentId)
+      ) {
+        this.graph.removeCell(edge)
+      }
+    })
+
+    let newLevel: MindMapNodeLevel
+    let newDirection: 'left' | 'right'
+
+    if (targetParentData.level === 'root') {
+      newLevel = 'primary'
+      const primaryRight = this.graph.getNodes().filter(
+        (n) => n.getData()?.level === 'primary' && n.getData()?.direction === 'right' && n.id !== nodeId
+      )
+      const primaryLeft = this.graph.getNodes().filter(
+        (n) => n.getData()?.level === 'primary' && n.getData()?.direction === 'left' && n.id !== nodeId
+      )
+      newDirection = primaryRight.length > primaryLeft.length ? 'left' : 'right'
+    } else {
+      newLevel = 'secondary'
+      newDirection = targetParentData.direction || 'right'
+    }
+
+    node.setData({
+      ...nodeData,
+      level: newLevel,
+      parentId: targetParentId,
+      direction: newDirection,
+    })
+
+    const newTargetParentData = targetParent.getData() as MindMapNodeData
+    targetParent.setData({
+      ...newTargetParentData,
+      children: [...(newTargetParentData.children || []), nodeId],
+    })
+
+    this.createEdge(targetParent, node, nodeData.fillColor, newDirection)
+
+    this.updateDescendantsDirection(node, newDirection)
+
+    const descendantEdges = this.graph.getEdges()
+    descendantEdges.forEach((edge) => {
+      const sourceId = edge.getSourceCellId()
+      const targetId = edge.getTargetCellId()
+      if (sourceId && targetId) {
+        const source = this.graph.getCellById(sourceId) as Node
+        const target = this.graph.getCellById(targetId) as Node
+        if (source && target) {
+          const sourceData = source.getData() as MindMapNodeData
+          const targetData = target.getData() as MindMapNodeData
+          if (
+            this.isDescendant(nodeId, sourceId) ||
+            this.isDescendant(nodeId, targetId) ||
+            sourceId === nodeId ||
+            targetId === nodeId
+          ) {
+            const direction = targetData?.direction || newDirection
+            const sourceAnchor = direction === 'right' ? 'right' : 'left'
+            const targetAnchor = direction === 'right' ? 'left' : 'right'
+
+            edge.setSource({ cell: sourceId, anchor: { name: sourceAnchor } })
+            edge.setTarget({ cell: targetId, anchor: { name: targetAnchor } })
+          }
+        }
+      }
+    })
+
+    this.layoutNodes()
+    return true
+  }
+
   deleteNode(node: Node) {
     const data = node.getData() as MindMapNodeData
     if (!data) return

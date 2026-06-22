@@ -26,6 +26,21 @@ export default function GraphCanvas({
   const editingInputRef = useRef<HTMLInputElement | null>(null)
   const createChildNodeRef = useRef<(parentNode: Node) => void>()
   const createSiblingNodeRef = useRef<(node: Node) => void>()
+  const dragStateRef = useRef<{
+    dragging: boolean
+    draggedNodeId: string | null
+    originalPosition: { x: number; y: number } | null
+    highlightedNodeId: string | null
+    originalStrokeColor: string | null
+    originalStrokeWidth: number | null
+  }>({
+    dragging: false,
+    draggedNodeId: null,
+    originalPosition: null,
+    highlightedNodeId: null,
+    originalStrokeColor: null,
+    originalStrokeWidth: null,
+  })
 
   createChildNodeRef.current = useCallback((parentNode: Node) => {
     if (!graphRef.current || !shapeManagerRef.current) return
@@ -362,6 +377,122 @@ export default function GraphCanvas({
 
     graph.on('node:moved', ({ node }) => {
       shapeManager.updateConnectedEdges(node)
+    })
+
+    graph.on('node:mousedown', ({ node, e }) => {
+      const nodeData = node.getData() as MindMapNodeData
+      if (!nodeData || nodeData.level === 'root') return
+
+      const dragState = dragStateRef.current
+      dragState.dragging = true
+      dragState.draggedNodeId = node.id
+      const bbox = node.getBBox()
+      dragState.originalPosition = { x: bbox.x, y: bbox.y }
+    })
+
+    graph.on('node:mouseup', ({ node, e }) => {
+      const dragState = dragStateRef.current
+      if (!dragState.dragging || !dragState.draggedNodeId) return
+
+      const draggedNodeId = dragState.draggedNodeId
+      const targetNodeId = node.id
+
+      if (dragState.highlightedNodeId) {
+        const highlightedNode = graph.getCellById(dragState.highlightedNodeId) as Node
+        if (highlightedNode) {
+          highlightedNode.attr('body/stroke', dragState.originalStrokeColor)
+          highlightedNode.attr('body/strokeWidth', dragState.originalStrokeWidth)
+        }
+      }
+
+      const history = graph.getPlugin('history') as any
+      if (draggedNodeId !== targetNodeId) {
+        if (history) history.startBatch('move-node')
+        shapeManager.moveNodeToParent(draggedNodeId, targetNodeId)
+        if (history) history.stopBatch('move-node')
+      }
+
+      dragState.dragging = false
+      dragState.draggedNodeId = null
+      dragState.originalPosition = null
+      dragState.highlightedNodeId = null
+      dragState.originalStrokeColor = null
+      dragState.originalStrokeWidth = null
+    })
+
+    graph.on('blank:mouseup', ({ e }) => {
+      const dragState = dragStateRef.current
+      if (!dragState.dragging || !dragState.draggedNodeId) return
+
+      if (dragState.originalPosition) {
+        const draggedNode = graph.getCellById(dragState.draggedNodeId) as Node
+        if (draggedNode) {
+          draggedNode.position(dragState.originalPosition.x, dragState.originalPosition.y)
+          shapeManager.updateConnectedEdges(draggedNode)
+        }
+      }
+
+      if (dragState.highlightedNodeId) {
+        const highlightedNode = graph.getCellById(dragState.highlightedNodeId) as Node
+        if (highlightedNode) {
+          highlightedNode.attr('body/stroke', dragState.originalStrokeColor)
+          highlightedNode.attr('body/strokeWidth', dragState.originalStrokeWidth)
+        }
+      }
+
+      dragState.dragging = false
+      dragState.draggedNodeId = null
+      dragState.originalPosition = null
+      dragState.highlightedNodeId = null
+      dragState.originalStrokeColor = null
+      dragState.originalStrokeWidth = null
+    })
+
+    graph.on('node:mouseenter', ({ node }) => {
+      const dragState = dragStateRef.current
+      if (!dragState.dragging || !dragState.draggedNodeId) return
+      if (node.id === dragState.draggedNodeId) return
+
+      const draggedNode = graph.getCellById(dragState.draggedNodeId) as Node
+      if (draggedNode) {
+        const draggedData = draggedNode.getData() as MindMapNodeData
+        let current = node
+        while (current) {
+          if (current.id === dragState.draggedNodeId) return
+          const data = current.getData() as MindMapNodeData
+          if (data?.parentId) {
+            current = graph.getCellById(data.parentId) as Node
+          } else {
+            break
+          }
+        }
+      }
+
+      if (dragState.highlightedNodeId && dragState.highlightedNodeId !== node.id) {
+        const prevHighlighted = graph.getCellById(dragState.highlightedNodeId) as Node
+        if (prevHighlighted) {
+          prevHighlighted.attr('body/stroke', dragState.originalStrokeColor)
+          prevHighlighted.attr('body/strokeWidth', dragState.originalStrokeWidth)
+        }
+      }
+
+      dragState.originalStrokeColor = node.attr('body/stroke') || '#000'
+      dragState.originalStrokeWidth = node.attr('body/strokeWidth') || 1
+      node.attr('body/stroke', '#1890ff')
+      node.attr('body/strokeWidth', 4)
+      dragState.highlightedNodeId = node.id
+    })
+
+    graph.on('node:mouseleave', ({ node }) => {
+      const dragState = dragStateRef.current
+      if (!dragState.dragging) return
+      if (dragState.highlightedNodeId !== node.id) return
+
+      node.attr('body/stroke', dragState.originalStrokeColor)
+      node.attr('body/strokeWidth', dragState.originalStrokeWidth)
+      dragState.highlightedNodeId = null
+      dragState.originalStrokeColor = null
+      dragState.originalStrokeWidth = null
     })
 
     graph.on('blank:contextmenu', ({ e }) => {

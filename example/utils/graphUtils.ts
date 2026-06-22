@@ -1,6 +1,81 @@
 import { Graph } from '@antv/x6'
 import { DiagramType } from '../types/editor'
 
+interface MindMapNodeData {
+  id: string
+  label: string
+  level: 'root' | 'primary' | 'secondary'
+  children?: string[]
+  [key: string]: any
+}
+
+function escapeMarkdown(text: string): string {
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/#/g, '\\#')
+    .replace(/\*/g, '\\*')
+    .replace(/_/g, '\\_')
+    .replace(/`/g, '\\`')
+    .replace(/\n/g, ' ')
+}
+
+export const exportAsMarkdown = (graph: Graph, filename: string): void => {
+  const nodes = graph.getNodes()
+
+  const rootNode = nodes.find((n) => n.getData()?.level === 'root')
+  if (!rootNode) return
+
+  const nodeMap = new Map<string, { data: MindMapNodeData }>()
+  nodes.forEach((n) => {
+    const data = n.getData() as MindMapNodeData
+    if (data) nodeMap.set(n.id, { data })
+  })
+
+  const rootData = rootNode.getData() as MindMapNodeData
+  const mdFileName = (rootData.label || filename).trim() || filename
+
+  const levelToHeading: Record<string, string> = {
+    root: '#',
+    primary: '##',
+    secondary: '###',
+  }
+
+  const lines: string[] = []
+
+  const walk = (nodeId: string) => {
+    const entry = nodeMap.get(nodeId)
+    if (!entry) return
+
+    const { data } = entry
+    const label = (data.label || '').trim()
+    if (label) {
+      const prefix = levelToHeading[data.level] || '###'
+      lines.push(`${prefix} ${escapeMarkdown(label)}`)
+      lines.push('')
+    }
+
+    if (data.children && data.children.length > 0) {
+      for (const childId of data.children) {
+        walk(childId)
+      }
+    }
+  }
+
+  walk(rootNode.id)
+
+  const content = lines.join('\n')
+  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${mdFileName}.md`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
 export interface GraphFileData {
   version: string
   diagramType: DiagramType

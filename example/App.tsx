@@ -10,6 +10,7 @@ import {
   downloadFile,
   exportAsSVG,
   exportAsPNG,
+  exportAsMarkdown,
   readFile,
   triggerFileInput,
   FILE_EXTENSION,
@@ -178,6 +179,25 @@ function App() {
     }
   }, [currentTool, fileName])
 
+  const handleExportMarkdown = useCallback(() => {
+    if (!isDiagramTool(currentTool)) return
+
+    console.log('handleExportMarkdown called, graphRef.current:', graphRef.current)
+    if (!graphRef.current) {
+      setStatus('错误：画布未就绪')
+      return
+    }
+
+    try {
+      exportAsMarkdown(graphRef.current, fileName)
+      setStatus('导出 Markdown 成功')
+      setTimeout(() => setStatus('就绪'), 2000)
+    } catch (error) {
+      console.error('Export Markdown error:', error)
+      setStatus('导出 Markdown 失败')
+    }
+  }, [currentTool, fileName])
+
   const handleZoomIn = useCallback(() => {
     if (!isDiagramTool(currentTool)) return
     
@@ -234,6 +254,7 @@ function App() {
         onExportSVG={handleExportSVG}
         onExportPNG={handleExportPNG}
         onExportJSON={handleExportJSON}
+        onExportMarkdown={handleExportMarkdown}
       />
       <div className="action-divider" />
       <button className="btn btn-sm" onClick={handleZoomOut}>

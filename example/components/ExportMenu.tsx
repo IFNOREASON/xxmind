@@ -5,12 +5,14 @@ interface ExportMenuProps {
   onExportSVG: () => void
   onExportPNG: () => void
   onExportJSON: () => void
+  onExportMarkdown: () => void
 }
 
 export default function ExportMenu({
   onExportSVG,
   onExportPNG,
   onExportJSON,
+  onExportMarkdown,
 }: ExportMenuProps) {
   const [showMenu, setShowMenu] = useState(false)
 
@@ -77,6 +79,19 @@ export default function ExportMenu({
               <div className="export-item-content">
                 <span className="export-item-name">PNG 图片</span>
                 <span className="export-item-desc">导出为高清位图图片</span>
+              </div>
+            </button>
+            <button
+              className="export-menu-item"
+              onClick={() => {
+                console.log('Export Markdown clicked')
+                handleExport(onExportMarkdown)
+              }}
+            >
+              <span className="export-icon">📝</span>
+              <div className="export-item-content">
+                <span className="export-item-name">Markdown 文档</span>
+                <span className="export-item-desc">按层级导出为 Markdown 标题文档</span>
               </div>
             </button>
           </div>

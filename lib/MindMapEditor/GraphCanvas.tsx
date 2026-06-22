@@ -404,7 +404,6 @@ export default function GraphCanvas({
       if (!dragState.dragging || !dragState.draggedNodeId) return
 
       const draggedNodeId = dragState.draggedNodeId
-      const targetNodeId = node.id
 
       const draggedNode = graph.getCellById(draggedNodeId) as Node
       if (draggedNode) {
@@ -423,45 +422,17 @@ export default function GraphCanvas({
         }
       }
 
+      const targetNodeId = dragState.highlightedNodeId
+
       const history = graph.getPlugin('history') as any
-      if (draggedNodeId !== targetNodeId) {
+      if (targetNodeId && targetNodeId !== draggedNodeId) {
         if (history) history.startBatch('move-node')
         shapeManager.moveNodeToParent(draggedNodeId, targetNodeId)
         if (history) history.stopBatch('move-node')
-      }
-
-      dragState.dragging = false
-      dragState.draggedNodeId = null
-      dragState.originalPosition = null
-      dragState.highlightedNodeId = null
-      dragState.originalStrokeColor = null
-      dragState.originalStrokeWidth = null
-      dragState.originalPointerEvents = null
-    })
-
-    graph.on('blank:mouseup', ({ e }) => {
-      const dragState = dragStateRef.current
-      if (!dragState.dragging || !dragState.draggedNodeId) return
-
-      const draggedNode = graph.getCellById(dragState.draggedNodeId) as Node
-      if (draggedNode) {
-        const view = graph.findView(draggedNode)
-        if (view && view.container) {
-          const container = view.container as HTMLElement
-          container.style.pointerEvents = dragState.originalPointerEvents || 'auto'
-        }
-
-        if (dragState.originalPosition) {
+      } else {
+        if (draggedNode && dragState.originalPosition) {
           draggedNode.position(dragState.originalPosition.x, dragState.originalPosition.y)
           shapeManager.updateConnectedEdges(draggedNode)
-        }
-      }
-
-      if (dragState.highlightedNodeId) {
-        const highlightedNode = graph.getCellById(dragState.highlightedNodeId) as Node
-        if (highlightedNode) {
-          highlightedNode.attr('body/stroke', dragState.originalStrokeColor)
-          highlightedNode.attr('body/strokeWidth', dragState.originalStrokeWidth)
         }
       }
 
